@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E6E5E5"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/book_cover_image"
+            android:padding="2dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/baseline_library_books_24"
+            android:contentDescription="@string/cover_image" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="10dp"
+            >
+
+            <TextView
+                android:id="@+id/book_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="#000"
+                android:textSize="22sp"
+                tools:text="Computer Networking" />
+
+            <TextView
+                android:id="@+id/book_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#666"
+                android:textSize="20sp"
+                tools:text="Andrew TaneneBum" />
+
+
+
+            <TextView
+                android:id="@+id/book_rent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#666"
+                android:textSize="20sp"
+                tools:text="RS.100" />
+
+            <Button
+                android:id="@+id/btn_rent_book"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/button_bg"
+                android:gravity="bottom"
+                android:padding="10dp"
+                android:text="@string/rent_book"
+                android:textAllCaps="false"
+                android:textSize="20sp"
+                tools:ignore="TextContrastCheck" />
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
+
+
+

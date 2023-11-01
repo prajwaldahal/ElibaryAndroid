@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name" translatable="false">E-library</string>
+    <string name="navigation_drawer_close">close drawer</string>
+    <string name="navigation_drawer_open">open drawer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="recent_book">Recently Added</string>
+    <string name="login_with_google">Login with Google</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="recommended_book">Recommended Book</string>
+    <string name="read_book">Read Book</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="invalid">Invalid Date</string>
+    <string name="SomethingWentWrong">something went wrong</string>
+    <string name="ServerError">Internal Server Error\nPlease try again later</string>
+    <string name="select_the_expiry_date">Select the expiry date:</string>
+    <string name="signing_in">Signing in</string>
+    <string name="logo">Logo</string>
+    <string name="name">Name:</string>
+    <string name="cover_image">cover image</string>
+    <string name="no_books_rented"> No Books available try refreshing</string>
+    <string name="rent_book">Rent Book</string>
+    <string name="author">Author:</string>
+    <string name="isbnno">ISBNno:</string>
+    <string name="publisher">Publisher:</string>
+    <string name="rent">Rent :</string>
+    <string name="sorry_no_books_available_currently">Sorry,No Books Available Currently</string>
+    <string name="rented_date">Rented Date :</string>
+    <string name="expiry_date">Expiry Date :</string>
+    <string name="search_hint">enter keywords to search here</string>
+    <string name="refresh">refresh</string>
+    <string name="try_again">Something Went Wrong!please try again</string>
+    <string name="rented_books">Rented Books</string>
+
+    <string-array name="sort_values">
+        <item>by Name</item>
+        <item>by Price</item>
+        <item>by ISBN no</item>
+    </string-array>
+
+    <string-array name="sort_values_rented">
+        <item>by Name</item>
+        <item>by Expiry Date</item>
+        <item>by ISBN no</item>
+    </string-array>
+
+</resources>
