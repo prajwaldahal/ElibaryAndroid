@@ -53,6 +53,8 @@ public class RentedFragment extends Fragment {
 
     APIServices apiServices;
 
+
+
     public RentedFragment(Context context) {
         this.context = context;
         apiServices=RetrofitBook.getRetrofitInstance();
@@ -163,7 +165,8 @@ public class RentedFragment extends Fragment {
         author.setText(rentedBooks.get(position).getAuthor());
         expiryDate.setText(rentedBooks.get(position).getExpiryDate());
         Glide.with(context)
-                .load("https://conforming-entrance.000webhostapp.com/elib/coverpic/"+rentedBooks.get(position).getImg())
+                .load(Config.getMyserverPicUrl()
+                        +rentedBooks.get(position).getImg())
                 .into(imageView);
 
         dialog.show();
@@ -171,6 +174,7 @@ public class RentedFragment extends Fragment {
 
 
     private void saveLocally(){
+        floatingActionButton.setEnabled(false);
         FragmentManager fragmentManager = getParentFragmentManager();
         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container,new RentedFragment(context));
@@ -189,11 +193,11 @@ public class RentedFragment extends Fragment {
                     List<RentedBook> rentedBooks=response.body();
                     assert rentedBooks != null;
                     for (RentedBook rentedBook:rentedBooks){
-                        if(databaseHelper.getBookbyId(rentedBook.getIsbnno())){
+                        if(databaseHelper.isBookAvailable(rentedBook.getIsbnno())){
                             databaseHelper.saveBook(rentedBook);
                         }
                     }
-
+                    floatingActionButton.setEnabled(true);
                     fragmentTransaction.commit();
 
                 }

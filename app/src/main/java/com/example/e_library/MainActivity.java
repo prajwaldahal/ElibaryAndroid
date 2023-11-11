@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         showAccountDetail();
 
-        HomeFragment homeFragment= new HomeFragment();
+        HomeFragment homeFragment= new HomeFragment(this);
         FragmentTransaction transaction= getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,homeFragment);
         transaction.commit();
 
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("position", "handleFragmentTransition: "+position);
         switch (position){
             case 0: {
-                HomeFragment homeFragment= new HomeFragment();
+                HomeFragment homeFragment= new HomeFragment(this);
                 fragmentTransaction.replace(R.id.fragment_container,homeFragment).commit();
                 break;
             }
@@ -155,8 +155,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         alertDialogBUilder.setPositiveButton("Logout", (dialog, which) -> googleSignInClient.signOut().addOnCompleteListener(task -> {
-            DatabaseHelper databaseHelper=new DatabaseHelper(MainActivity.this);
-            databaseHelper.deleteallRecords();
+            try(DatabaseHelper databaseHelper=new DatabaseHelper(MainActivity.this)) {
+                databaseHelper.deleteallRecords();
+            }catch (Exception e){
+                Toast.makeText(this, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+            }
             startActivity(new Intent(MainActivity.this,LoginActivity.class));
             finish();
         }));

@@ -78,6 +78,8 @@ public class BookFragment extends Fragment {
 
     private RecyclerView recyclerView;
 
+    private FloatingActionButton floatingActionButton;
+
     public BookFragment(Context context) {
 
         this.context = context;
@@ -111,9 +113,9 @@ public class BookFragment extends Fragment {
         storeData=new StoreData(context);
 
 
-        FloatingActionButton floatingActionButton = view.findViewById(R.id.refresh_book);
+        floatingActionButton = view.findViewById(R.id.refresh_book);
 
-        floatingActionButton.setOnClickListener(v -> recreateFragment());
+        floatingActionButton.setOnClickListener(v -> getBooks());
 
         spinner=view.findViewById(R.id.sort);
 
@@ -213,10 +215,8 @@ public class BookFragment extends Fragment {
 
 
     private void recreateFragment() {
-        FragmentManager fragmentManager = getParentFragmentManager();
-        FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container,new BookFragment(context));
-        fragmentTransaction.commit();
+
+       getBooks();
     }
 
     @SuppressLint("DefaultLocale")
@@ -225,7 +225,7 @@ public class BookFragment extends Fragment {
         buy.set(daysDiff * Long.parseLong(book.getRent())/30);
         price.setText(String.format("Price to pay:Rs%d", buy.get()));
         price.setTextColor(Color.GREEN);
-        Config.Builder builder = new Config.Builder("test_public_key_863f0fdcc17a4ad78ede29f917e18802", book.getIsbnno(), book.getName(), buy.get()*100, new OnCheckOutListener() {
+        Config.Builder builder = new Config.Builder(com.example.e_library.Config.getKhaltiTestId(), book.getIsbnno(), book.getName(), buy.get()*100, new OnCheckOutListener() {
             @Override
             public void onError(@NonNull String action, @NonNull Map<String, String> errorMap) {
                 Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -296,7 +296,7 @@ public class BookFragment extends Fragment {
                     List<RentedBook> rentedBooks=response.body();
                     if (rentedBooks != null) {
                         for (RentedBook rentedBook:rentedBooks) {
-                            if (databaseHelper.getBookbyId(rentedBook.getIsbnno())) {
+                            if (databaseHelper.isBookAvailable(rentedBook.getIsbnno())) {
                                 databaseHelper.saveBook(rentedBook);
                             }
                         }
@@ -313,7 +313,7 @@ public class BookFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<List<RentedBook>> call, @NonNull Throwable t) {
-                Toast.makeText(context,"Unable to rent Text",Toast.LENGTH_SHORT);
+                Toast.makeText(context,"Unable to rent Text",Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(ProgressBar.GONE);
             }
         });
@@ -322,7 +322,6 @@ public class BookFragment extends Fragment {
     private void showDialog(int position) {
         TextView name,publisher,isbnno,rent,author;
         ImageView imageView;
-        ProgressBar imageProgressBar ;
         Dialog dialog=new Dialog(context);
         dialog.setContentView(R.layout.book_dialog_layout);
 
@@ -342,10 +341,11 @@ public class BookFragment extends Fragment {
         rent.setText(String.format("Rs.%s per month", books.get(position).getRent()));
         author.setText(books.get(position).getAuthor());
         Glide.with(context)
-                .load("https://conforming-entrance.000webhostapp.com/elib/coverpic/"+books.get(position).getImg())
+                .load(com.example.e_library.Config.getMyserverPicUrl() +books.get(position).getImg())
                 .addListener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+
                         return false;
                     }
 
@@ -361,20 +361,21 @@ public class BookFragment extends Fragment {
     }
 
     private void getBooks() {
-
+        textView.setVisibility(TextView.GONE);
+        floatingActionButton.setEnabled(false);
         progressBar.setVisibility(ProgressBar.VISIBLE);
-
+        if(recyclerView!=null)
+            recyclerView.setVisibility(RecyclerView.GONE);
         spinner.setEnabled(false);
 
+
         Call<List<Book>> call = apiServices.getAllBook(storeData.getUser());
-
-
-
         call.enqueue(new Callback<List<Book>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(@NonNull Call<List<Book>> call, @NonNull Response<List<Book>> response) {
                 progressBar.setVisibility(ProgressBar.GONE);
+                recyclerView.setVisibility(RecyclerView.VISIBLE);
                 try{
                     if (response.isSuccessful()) {
                         List<Book> fetchedBooks = response.body();
@@ -393,6 +394,7 @@ public class BookFragment extends Fragment {
                     } else {
                         FragmentUtils.showError(progressBar,recyclerView,textView, getString(R.string.ServerError));
                     }
+                    floatingActionButton.setEnabled(true);
                 }catch (NullPointerException e){
                     Log.d("TAG", "onResponse: "+e.getMessage());
                 }

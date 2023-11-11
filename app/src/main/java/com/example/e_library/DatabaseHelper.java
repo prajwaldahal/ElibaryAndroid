@@ -3,7 +3,6 @@ package com.example.e_library;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -24,7 +23,7 @@ import retrofit2.Response;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "elibrary_db";
-    private static final int DB_VERSION =2;
+    private static final int DB_VERSION =3;
     private final Context context;
     private final APIServices apiServices;
 
@@ -47,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void saveBook(RentedBook book){
+    public void saveBook(@NonNull RentedBook book){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("isbnno",book.getIsbnno());
@@ -158,7 +157,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.close();
         return rentedBookList;
     }
-    public boolean getBookbyId(String isbnno){
+    public boolean isBookAvailable(String isbnno){
         boolean presented;
         Log.d("isbnn", "getBookbyId: "+isbnno);
         SQLiteDatabase database = this.getReadableDatabase();
@@ -170,18 +169,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return !presented;
     }
 
+    public LastRead getLastReadBook(String isbnno) {
+        String name ,author,image,file;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String selection = "isbnno=?";
+        String[] selectionArgs = {isbnno};
+        @SuppressLint("Recycle") Cursor cursor = database.query("rented_book", null, selection, selectionArgs, null, null, null);
+
+        if (cursor.moveToFirst()) {
+
+            int nameIndex = cursor.getColumnIndex("name");
+            int authorIndex = cursor.getColumnIndex("author");
+            int imageIndex = cursor.getColumnIndex("image");
+            int fileIndex= cursor.getColumnIndex("file");
+            name = nameIndex != -1 ? cursor.getString(nameIndex) : null;
+            author = authorIndex != -1 ? cursor.getString(authorIndex) : null;
+            image = imageIndex != -1 ? cursor.getString(imageIndex) : null;
+            file=fileIndex!=-1? cursor.getString(fileIndex) :null;
+            return new LastRead(name, author, image,file);
+        }
+        return null;
+    }
+
     public String getUsername(){
-
-        SharedPreferences sharedPreferences = null;
-        if (context != null) {
-            sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-        }
-        if (sharedPreferences != null) {
-            return sharedPreferences.getString("username",null);
-        }
-        else
-            return "";
-
+        StoreData storeData= new StoreData(context);
+       return storeData.getUser();
     }
 
     public void setDefaultPage(int page,String isbnno){
@@ -193,6 +205,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.update("rented_book",values,whereClause,whereArgs);
         database.close();
     }
+
 
 
     public int getDefaultPage(String isbnno) {

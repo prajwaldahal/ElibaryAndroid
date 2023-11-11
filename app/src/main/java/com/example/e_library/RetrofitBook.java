@@ -7,7 +7,7 @@ public class RetrofitBook {
     public static APIServices getRetrofitInstance() {
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://conforming-entrance.000webhostapp.com/api/")
+                .baseUrl(Config.getMyserverApiUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

@@ -89,12 +89,11 @@ public class RentedBookAdapter extends RecyclerView.Adapter<RentedBookAdapter.Vi
             bookAuth.setText(rentedBook.getAuthor());
             expire.setText("Expires on " + rentedBook.getExpiryDate());
             Glide.with(context)
-                    .load("https://conforming-entrance.000webhostapp.com/elib/coverpic/" + rentedBook.getImg())
+                    .load(Config.getMyserverPicUrl()+ rentedBook.getImg())
                     .into(cover);
 
             readBook.setOnClickListener(v -> {
-                String pdfUrl = "https://conforming-entrance.000webhostapp.com/elib/file/" + rentedBook.getFile();
-
+                String pdfUrl = Config.getMyserverFileUrl() + rentedBook.getFile();
                 Intent intent = new Intent(context, PdfActivity.class);
                 intent.putExtra("url",pdfUrl);
                 intent.putExtra("isbn",rentedBook.getIsbnno());

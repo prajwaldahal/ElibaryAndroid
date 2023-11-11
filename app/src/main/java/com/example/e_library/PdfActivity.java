@@ -27,7 +27,9 @@ public class PdfActivity extends AppCompatActivity {
     String isbnno;
 
     DatabaseHelper databaseHelper;
-    int defaultPage=0;
+    int defaultPage=1,totalPage=0;
+
+    StoreData storeData;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +43,7 @@ public class PdfActivity extends AppCompatActivity {
         pdfView=findViewById(R.id.pdfView);
         progressBar=findViewById(R.id.progress_bar);
 
+        storeData= new StoreData(this);
 
         downloadAndOpenPdf(pdfUrl);
 
@@ -99,17 +102,18 @@ public class PdfActivity extends AppCompatActivity {
             Uri uri = FileProvider.getUriForFile(this, "com.example.e_library.fileprovider", pdfFile);
             progressBar.setVisibility(ProgressBar.GONE);
             pdfView.setVisibility(PDFView.VISIBLE);
+            storeData.addLastReadedBook(isbnno);
             pdfView.fromUri(uri)
                     .defaultPage(getDefaultPage())
-                    .onPageChange((page, pageCount) -> {
-                          defaultPage=page;
-                        Log.d("Name", "openPdfWithIntent: "+pdfFile.getName());
-                    })
+                    .onPageChange((page, pageCount) -> defaultPage=page)
                     .enableDoubletap(true)
+                    .onLoad(nbPages -> totalPage=pdfView.getPageCount())
                     .autoSpacing(true)
                     .enableSwipe(true)
                     .enableAntialiasing(true)
                     .load();
+
+
         });
     }
 
@@ -120,6 +124,7 @@ public class PdfActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         databaseHelper.setDefaultPage(defaultPage,isbnno);
+        storeData.addProgres(totalPage,defaultPage+1);
         databaseHelper.close();
         super.onStop();
     }

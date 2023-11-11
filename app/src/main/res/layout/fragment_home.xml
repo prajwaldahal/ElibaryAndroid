@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".HomeFragment">
+    tools:context=".HomeFragment"
+    >
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -14,6 +17,7 @@
         android:id="@+id/guideline"
         app:layout_constraintGuide_begin="10dp"
         />
+
     <androidx.constraintlayout.widget.Guideline
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,48 +27,157 @@
         />
 
     <TextView
-        android:id="@+id/newly_added"
+        android:id="@+id/last_opened"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/recent_book"
-        android:textSize="24sp"
+        android:layout_marginTop="4dp"
+        android:text="@string/last_read"
         android:textAllCaps="false"
+        android:textColor="@color/blackx"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="@id/guideline"
-        app:layout_constraintTop_toTopOf="@id/guideline_up"
-        />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/newly_added_books"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintStart_toStartOf="@id/guideline"
-        app:layout_constraintTop_toBottomOf="@id/newly_added" />
+        app:layout_constraintTop_toTopOf="@id/guideline_up" />
 
     <TextView
-        android:id="@+id/Recomended_added"
+        android:id="@+id/nobook"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="10dp"
+        android:text="@string/not_read"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline"
+        app:layout_constraintTop_toBottomOf="@id/last_opened" />
+    <View
+        android:id="@+id/clickableArea"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="@id/guideline"
+        app:layout_constraintTop_toTopOf="@id/last_opened"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/recently_added"
+        android:background="@android:color/transparent" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/Framecontainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guideline_up"
+        app:layout_constraintStart_toEndOf="@id/guideline"
+        >
+
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@id/linear"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/last_opened"
+        >
+
+
+        <ImageView
+            android:id="@+id/last_read_cover_image"
+            android:layout_width="180dp"
+            android:layout_height="200dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="6dp"
+            android:contentDescription="@string/cover_image"
+            android:padding="2dp"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/baseline_library_books_24" />
+
+        <ProgressBar
+            android:id="@id/progress_bar"
+            android:layout_width="95dp"
+            android:layout_height="86dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/linear"
+        android:layout_width="223dp"
+        android:layout_height="201dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="@id/frame"
+        app:layout_constraintTop_toBottomOf="@id/last_opened"
+        tools:ignore="TextSizeCheck,VisualLintBounds">
+
+        <TextView
+            android:id="@+id/book_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAlignment="center"
+            android:textColor="#000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="Computer Networking" />
+
+        <TextView
+            android:id="@+id/book_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textColor="#666"
+            android:textSize="16sp"
+            tools:text="Andrew TaneneBum" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ProgressBar
+                android:id="@+id/readingProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="166dp"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/progress_bar_drawable" />
+
+            <TextView
+                android:id="@+id/progresstext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="81%" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/recently_added"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/recommended_book"
+        android:layout_marginTop="56dp"
+        android:text="@string/recent_book"
         android:textAllCaps="false"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/newly_added_books" />
+        app:layout_constraintTop_toBottomOf="@id/linear" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="@id/guideline"
-        app:layout_constraintTop_toBottomOf="@id/Recomended_added" />
-
+        app:layout_constraintTop_toBottomOf="@id/recently_added" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

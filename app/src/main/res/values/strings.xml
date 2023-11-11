@@ -3,14 +3,13 @@
     <string name="navigation_drawer_close">close drawer</string>
     <string name="navigation_drawer_open">open drawer</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="recent_book">Recently Added</string>
+    <string name="last_read">Last Open Book</string>
     <string name="login_with_google">Login with Google</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="recommended_book">Recommended Book</string>
+    <string name="recent_book">Recently Added</string>
     <string name="read_book">Read Book</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="invalid">Invalid Date</string>
-    <string name="SomethingWentWrong">something went wrong</string>
     <string name="ServerError">Internal Server Error\nPlease try again later</string>
     <string name="select_the_expiry_date">Select the expiry date:</string>
     <string name="signing_in">Signing in</string>
@@ -30,6 +29,7 @@
     <string name="refresh">refresh</string>
     <string name="try_again">Something Went Wrong!please try again</string>
     <string name="rented_books">Rented Books</string>
+    <string name="not_read">You have not read any book</string>
 
     <string-array name="sort_values">
         <item>by Name</item>

@@ -104,7 +104,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
             bookAuth.setText(book.getAuthor());
             bookRent.setText(String.format("%s per month", book.getRent()));
             Glide.with(context)
-                    .load("https://conforming-entrance.000webhostapp.com/elib/coverpic/"+book.getImg())
+                    .load(Config.getMyserverPicUrl()+book.getImg())
                     .into(cover);
 
 
