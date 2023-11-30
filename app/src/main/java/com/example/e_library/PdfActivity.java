@@ -122,9 +122,14 @@ public class PdfActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        storeData.addProgres(totalPage,defaultPage+1);
+        super.onPause();
+    }
+
+    @Override
     protected void onStop() {
         databaseHelper.setDefaultPage(defaultPage,isbnno);
-        storeData.addProgres(totalPage,defaultPage+1);
         databaseHelper.close();
         super.onStop();
     }

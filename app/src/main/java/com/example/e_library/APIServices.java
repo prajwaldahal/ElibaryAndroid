@@ -26,5 +26,8 @@ public interface APIServices {
             @Path("isbnno") String isbnno
     );
 
+    @GET("recent")
+    Call<List<RecentBook>> getRecent();
+
 
 }

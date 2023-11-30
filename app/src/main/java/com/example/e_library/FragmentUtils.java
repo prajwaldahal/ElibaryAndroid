@@ -1,5 +1,7 @@
 package com.example.e_library;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -10,6 +12,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class FragmentUtils {
+
+    private static Dialog dialog;
     public static void replaceFragment(FragmentManager fragmentManager, Fragment fragment, int containerId) {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(containerId, fragment);
@@ -33,5 +37,16 @@ public class FragmentUtils {
         recyclerView.setVisibility(View.GONE);
         textView.setVisibility(View.VISIBLE);
         textView.setText(errorMessage);
+    }
+
+    public static void showLoading(Context context) {
+        dialog= new Dialog(context);
+        dialog.setContentView(R.layout.progress_dialog_show);
+        dialog.setCancelable(false);
+        dialog.show();
+    }
+
+    public static void closeLoading(){
+        dialog.dismiss();
     }
 }

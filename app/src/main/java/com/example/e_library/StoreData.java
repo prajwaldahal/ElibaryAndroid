@@ -22,7 +22,7 @@ public class StoreData {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         System.out.println("current "+currentPage+" total"+totalPage);
         int progress= (int) ( currentPage/(float)totalPage*100);
-        Log.d("PROGRESS", "addProgres: "+currentPage);
+        Log.d("PROGRESS", "addProgres: "+progress);
         editor.putInt("progress",progress);
         editor.apply();
     }

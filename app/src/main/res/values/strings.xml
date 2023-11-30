@@ -30,6 +30,7 @@
     <string name="try_again">Something Went Wrong!please try again</string>
     <string name="rented_books">Rented Books</string>
     <string name="not_read">You have not read any book</string>
+    <string name="todo">TODO</string>
 
     <string-array name="sort_values">
         <item>by Name</item>
