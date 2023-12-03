@@ -10,14 +10,7 @@ public class Book {
     protected String author;
     protected String rent;
 
-    public Book(String img, String isbnno, String name, String publisher, String author, String rent) {
-        this.img = img;
-        this.isbnno = isbnno;
-        this.name = name;
-        this.publisher = publisher;
-        this.author = author;
-        this.rent = rent;
-    }
+
 
     public Book(String img, String isbnno, String name, String publisher, String author) {
         this.img = img;
