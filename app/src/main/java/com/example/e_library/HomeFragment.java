@@ -262,7 +262,18 @@ public class HomeFragment extends Fragment {
                     if(actionBar!=null)
                         actionBar.setTitle(R.string.rented_books);
                     FragmentUtils.closeLoading();
-                    FragmentUtils.replaceFragment(getParentFragmentManager(),new RentedFragment(context),R.id.fragment_container);
+
+                    Fragment existingFragment = getParentFragmentManager().findFragmentByTag("rented");
+
+                    if (existingFragment != null) {
+                        getParentFragmentManager().beginTransaction().remove(existingFragment).commit();
+                    }
+
+                    RentedFragment rentedFragment = new RentedFragment(context);
+                    getParentFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, rentedFragment, "rented")
+                            .addToBackStack("rented")
+                            .commit();
                 }
                 else {
                     FragmentUtils.closeLoading();

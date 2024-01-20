@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     ActionBar actionBar;
 
+    FragmentManager fragmentManager;
+
 
 
 
@@ -67,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
         drawerItems= new ArrayList<>();
         setDrawerItems();
 
+        fragmentManager=getSupportFragmentManager();
+
         toggle = new ActionBarDrawerToggle(
                 this, drawerLayout,R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -86,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
         showAccountDetail();
 
         HomeFragment homeFragment= new HomeFragment(this);
-        FragmentTransaction transaction= getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,homeFragment);
+        FragmentTransaction transaction= fragmentManager.beginTransaction().add(R.id.fragment_container,homeFragment);
+        transaction.addToBackStack("home");
         transaction.commit();
 
     }
@@ -110,35 +116,66 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleFragmentTransition(int position) {
-        FragmentTransaction fragmentTransaction= getSupportFragmentManager().beginTransaction();
-        Log.d("position", "handleFragmentTransition: "+position);
-        switch (position){
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Log.d("position", "handleFragmentTransition: " + position);
+
+        switch (position) {
             case 0: {
-                HomeFragment homeFragment= new HomeFragment(this);
-                fragmentTransaction.replace(R.id.fragment_container,homeFragment).commit();
+                if (!isFragmentInBackStack("home")) {
+                    HomeFragment homeFragment = new HomeFragment(this);
+                    fragmentTransaction.addToBackStack("home");
+                    fragmentTransaction.replace(R.id.fragment_container, homeFragment,"home").commit();
+                } else {
+                    fragmentManager.popBackStack("home", 0);
+                }
                 break;
             }
 
-            case 1:{
-                actionBar.setTitle("Available Books");
-                BookFragment bookFragment=new BookFragment(this);
-                fragmentTransaction.replace(R.id.fragment_container,bookFragment).commit();
+            case 1: {
+                if (!isFragmentInBackStack("books")) {
+                    Log.d("Book", "handleFragmentTransition: NOT FOUND BOOKFRAGMENT");
+                    actionBar.setTitle("Available Books");
+                    BookFragment bookFragment = new BookFragment(this);
+                    fragmentTransaction.addToBackStack("books");
+                    fragmentTransaction.replace(R.id.fragment_container, bookFragment,"books").commit();
+                } else {
+                    Log.d("Book", "handleFragmentTransition: FOUND BOOKFRAGMENT");
+                    fragmentManager.popBackStack("books", 0);
+                }
                 break;
             }
 
-            case 2:{
-                actionBar.setTitle("Rented Books");
-                RentedFragment rentedFragment= new RentedFragment(this);
-                fragmentTransaction.replace(R.id.fragment_container,rentedFragment).commit();
+            case 2: {
+                if (!isFragmentInBackStack("rented")) {
+                    actionBar.setTitle("Rented Books");
+                    RentedFragment rentedFragment = new RentedFragment(this);
+                    fragmentTransaction.addToBackStack("rented");
+                    fragmentTransaction.replace(R.id.fragment_container, rentedFragment,"rented").commit();
+                } else {
+                    fragmentManager.popBackStack("rented", 0);
+                }
                 break;
-          }
+            }
 
-            case 3:{
+            case 3: {
                 logOut();
+                break;
             }
         }
+
         drawerLayout.closeDrawer(GravityCompat.START);
     }
+
+    private boolean isFragmentInBackStack(String tag) {
+        for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
+            Log.d("FRAGMENTS", "FRAGMENTS STACKED: "+fragmentManager.getBackStackEntryAt(i).getName().toLowerCase());
+            if (tag.toLowerCase().equals(fragmentManager.getBackStackEntryAt(i).getName().toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private void logOut() {
 
@@ -206,18 +243,25 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public void onBackPressed() {
-        long currentTime = System.currentTimeMillis();
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
-        if (tapCount == 0 || currentTime - lastBackPressedTime > 2000) {
-            tapCount = 1;
-            lastBackPressedTime = currentTime;
-            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show();
-        } else if (tapCount == 1 && currentTime - lastBackPressedTime <= 2000) {
-            super.onBackPressed();
+        if (fragmentManager.getBackStackEntryCount() > 1) {
+            fragmentManager.popBackStack();
+        } else {
+            long currentTime = System.currentTimeMillis();
+            if (tapCount == 0 || currentTime - lastBackPressedTime > 2000) {
+                tapCount = 1;
+                lastBackPressedTime = currentTime;
+                Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show();
+            } else if (tapCount == 1 && currentTime - lastBackPressedTime <= 2000) {
+                super.onBackPressed();
+            }
         }
     }
+
 
     @Override
     public void onPostResume() {

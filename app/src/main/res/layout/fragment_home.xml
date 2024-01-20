@@ -92,6 +92,7 @@
             tools:src="@drawable/baseline_library_books_24" />
 
         <ProgressBar
+            android:visibility="gone"
             android:id="@id/progress_bar"
             android:layout_width="95dp"
             android:layout_height="86dp"
@@ -191,6 +192,7 @@
         app:layout_constraintHorizontal_bias="0.391"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recently_added"
+        android:visibility="gone"
         app:layout_constraintVertical_bias="0.181" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

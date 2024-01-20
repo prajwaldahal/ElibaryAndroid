@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -350,7 +351,17 @@ public class BookFragment extends Fragment {
                     ActionBar actionBar = ((AppCompatActivity) requireActivity()).getSupportActionBar();
                     if(actionBar!=null)
                         actionBar.setTitle(R.string.rented_books);
-                    FragmentUtils.replaceFragment(getParentFragmentManager(),new RentedFragment(context),R.id.fragment_container);
+                    Fragment existingFragment = getParentFragmentManager().findFragmentByTag("rented");
+
+                    if (existingFragment != null) {
+                        getParentFragmentManager().beginTransaction().remove(existingFragment).commit();
+                    }
+
+                    RentedFragment rentedFragment = new RentedFragment(context);
+                    getParentFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, rentedFragment, "rented")
+                            .addToBackStack("rented")
+                            .commit();
                 }
                 else {
                     FragmentUtils.showError(progressBar,recyclerView,textView, getString(R.string.ServerError));

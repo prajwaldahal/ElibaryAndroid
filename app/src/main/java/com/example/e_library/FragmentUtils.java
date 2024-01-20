@@ -14,11 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 public class FragmentUtils {
 
     private static Dialog dialog;
-    public static void replaceFragment(FragmentManager fragmentManager, Fragment fragment, int containerId) {
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(containerId, fragment);
-        fragmentTransaction.commit();
-    }
 
     public static void showLoading(ProgressBar progressBar, RecyclerView recyclerView, TextView textView) {
         progressBar.setVisibility(View.VISIBLE);
