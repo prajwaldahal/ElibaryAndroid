@@ -33,12 +33,14 @@
     <string name="todo">TODO</string>
 
     <string-array name="sort_values">
+        <item>Sort By</item>
         <item>by Name</item>
         <item>by Price</item>
         <item>by ISBN no</item>
     </string-array>
 
     <string-array name="sort_values_rented">
+        <item>Sort By</item>
         <item>by Name</item>
         <item>by Expiry Date</item>
         <item>by ISBN no</item>

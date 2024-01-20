@@ -23,7 +23,7 @@ import retrofit2.Response;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "elibrary_db";
-    private static final int DB_VERSION =3;
+    private static final int DB_VERSION =4;
     private final Context context;
     private final APIServices apiServices;
 
@@ -35,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE_QUERY = "CREATE TABLE rented_book(isbnno VARCHAR(14) PRIMARY KEY, name TEXT, author TEXT, image TEXT,file TEXT,expiry_date TEXT,publisher TEXT,rented_date TEXT,page INTEGER)";
+        String CREATE_TABLE_QUERY = "CREATE TABLE rented_book(isbnno VARCHAR(14) PRIMARY KEY, name TEXT, author TEXT, image TEXT,file TEXT,expiry_date TEXT,publisher TEXT,rented_date TEXT,page INTEGER,payment INTEGER)";
         db.execSQL(CREATE_TABLE_QUERY);
     }
 
@@ -58,6 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("publisher",book.getPublisher());
         values.put("rented_date",book.getRenteddate());
         values.put("page",0);
+        values.put("payment",book.getPayment());
         Log.d("TAG", "saveBook: "+book);
         db.insert("rented_book", null, values);
         db.close();
@@ -130,7 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int dateIndex=cursor.getColumnIndex("expiry_date");
             int publisherIndex=cursor.getColumnIndex("publisher");
             int rentedDateIndex= cursor.getColumnIndex("rented_date");
-
+            int paymentIndex=cursor.getColumnIndex("payment");
             do {
 
                 String isbnno= isbnIndex!=-1 ? cursor.getString(isbnIndex):null;
@@ -141,12 +142,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String date=dateIndex != -1 ? cursor.getString(dateIndex):null;
                 String publisher=publisherIndex!=-1?cursor.getString(publisherIndex):null;
                 String rentedDate=rentedDateIndex!=-1?cursor.getString(rentedDateIndex):null;
+                int payment=paymentIndex!=-1?cursor.getInt(paymentIndex):0;
                 if (date != null && date.compareTo(formattedExpiryDate) < 0) {
                     deleteRecord(isbnno);
                     continue;
                 }
 
-                RentedBook rentedBook=new RentedBook(isbnno,name,author,date,image,file,publisher,rentedDate);
+                RentedBook rentedBook=new RentedBook(isbnno,name,author,date,image,file,publisher,rentedDate,payment);
                 rentedBookList.add(rentedBook);
 
             }while(cursor.moveToNext());

@@ -3,12 +3,10 @@ package com.example.e_library;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class Sort<T extends Book> {
-    private List<T> books;
+    private final List<T> books;
     private final SortBy which;
 
     public Sort(SortBy which, List<T> books) {
@@ -107,7 +105,6 @@ public class Sort<T extends Book> {
 
         for (k = low; k <= high; k++) {
             books.set(k, tempBooks.get(k));
-            Log.d("here", "merge: "+books);
         }
     }
 }

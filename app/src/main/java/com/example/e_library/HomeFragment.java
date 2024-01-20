@@ -211,7 +211,7 @@ public class HomeFragment extends Fragment {
 
         FragmentUtils.showLoading(context);
 
-        RentBookDataSent rentBookDataSent=new RentBookDataSent(storeData.getUser(), (String) data.get("product_identity"),formattedExpiryDate);
+        RentBookDataSent rentBookDataSent=new RentBookDataSent(storeData.getUser(), (String) data.get("product_identity"),formattedExpiryDate, (Integer) data.get("amount")/100);
         data.clear();
         Call<PostApiResponse> call=apiServices.insertRentedBook(rentBookDataSent);
 

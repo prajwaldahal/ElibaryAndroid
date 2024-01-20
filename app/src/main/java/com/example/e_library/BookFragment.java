@@ -4,9 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -21,20 +23,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.khalti.checkout.helper.Config;
 import com.khalti.checkout.helper.OnCheckOutListener;
@@ -57,13 +52,15 @@ import retrofit2.Response;
 public class BookFragment extends Fragment {
     private final Context context;
 
+    private boolean focus;
     private Dialog dialog;
 
     private KhaltiButton khaltiButton;
 
     private DatabaseHelper databaseHelper;
     private ProgressBar progressBar;
-    private List<Book> books;
+    private ArrayList<Book> books;
+    private final ArrayList<Book> tempBooks;
     private BookAdapter bookAdapter;
 
     private TextView textView;
@@ -81,9 +78,10 @@ public class BookFragment extends Fragment {
     private FloatingActionButton floatingActionButton;
 
     public BookFragment(Context context) {
-
+        this.focus=false;
         this.context = context;
         this.books = new ArrayList<>();
+        this.tempBooks=new ArrayList<>();
         apiServices= RetrofitBook.getRetrofitInstance();
 
     }
@@ -121,32 +119,41 @@ public class BookFragment extends Fragment {
 
         getBooks();
 
+
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                boolean canSort;
                 if (books != null) {
                     String selectedValue = (String) parent.getSelectedItem();
-                    Log.d("selected", "onItemSelected: "+selectedValue);
+                    Log.d("sorted value", "onItemSelected: "+selectedValue);
                     switch (selectedValue) {
                         case "by Name": {
                             sortBy = SortBy.NAME;
+                            canSort=true;
                             Log.i("bookfragment", "onItemSelected: name");
                             break;
                         }
                         case "by Price": {
+                            canSort=true;
                             sortBy = SortBy.PRICE;
                             break;
                         }
                         case "by ISBN no": {
+                            canSort=true;
                             sortBy = SortBy.ISBNNO;
                             break;
                         }
+                        default:{
+                            canSort=false;
+                        }
                     }
-
-                    Sort<Book>sort = new Sort<>(sortBy, books);
-                    books = sort.mergeSort();
-                    bookAdapter.notifyDataSetChanged();
+                    if(canSort){
+                        Sort<Book>sort = new Sort<>(sortBy, books);
+                        books = (ArrayList<Book>) sort.mergeSort();
+                        bookAdapter.notifyDataSetChanged();
+                    }
                 }
             }
 
@@ -156,9 +163,36 @@ public class BookFragment extends Fragment {
             }
         });
 
+        EditText searchBar = view.findViewById(R.id.search_book);
+
 
         bookAdapter=new BookAdapter(context,books);
         recyclerView.setAdapter(bookAdapter);
+
+        searchBar.setOnFocusChangeListener((v, hasFocus) -> focus=hasFocus);
+
+        searchBar.setOnClickListener(v -> {
+            if(focus) {
+                searchBar.clearFocus();
+            }
+        });
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+               searchBook(s.toString().trim());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         bookAdapter.setOnItemClickListener(this::showDialog);
 
@@ -213,10 +247,20 @@ public class BookFragment extends Fragment {
 
     }
 
-
-    private void recreateFragment() {
-
-       getBooks();
+    @SuppressLint("NotifyDataSetChanged")
+    private void searchBook(String searchText) {
+         if(!searchText.isEmpty()){
+             books.clear();
+             books.addAll(tempBooks);
+             books= (ArrayList<Book>) Search.search(books,searchText);
+         }
+         else{
+             if(tempBooks.size()!=books.size()) {
+                 books.clear();
+                 books.addAll(tempBooks);
+             }
+         }
+        bookAdapter.notifyDataSetChanged();
     }
 
     @SuppressLint("DefaultLocale")
@@ -228,6 +272,7 @@ public class BookFragment extends Fragment {
         Config.Builder builder = new Config.Builder(com.example.e_library.Config.getKhaltiTestId(), book.getIsbnno(), book.getName(), buy.get()*100, new OnCheckOutListener() {
             @Override
             public void onError(@NonNull String action, @NonNull Map<String, String> errorMap) {
+                Log.d("ERROR KHALTI", "onError: "+ errorMap);
                 Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
 
@@ -254,10 +299,10 @@ public class BookFragment extends Fragment {
 
         progressBar.setVisibility(ProgressBar.VISIBLE);
 
-        RentBookDataSent rentBookDataSent=new RentBookDataSent(storeData.getUser(), (String) data.get("product_identity"),formattedExpiryDate);
+        RentBookDataSent rentBookDataSent=new RentBookDataSent(storeData.getUser(), (String) data.get("product_identity"),formattedExpiryDate, (Integer) data.get("amount")/100);
         data.clear();
+        Log.e("ERROR", "SaveInRemoteServer: "+rentBookDataSent);
         Call<PostApiResponse> call=apiServices.insertRentedBook(rentBookDataSent);
-
         call.enqueue(new Callback<PostApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<PostApiResponse> call, @NonNull Response<PostApiResponse> response) {
@@ -271,6 +316,7 @@ public class BookFragment extends Fragment {
                             saveLocally();
                         }
                         else {
+                            Log.e("error", "onResponse: ERROR OCCURED" );
                             progressBar.setVisibility(ProgressBar.GONE);
                             Toast.makeText(context, "something went wrong", Toast.LENGTH_SHORT).show();
                         }
@@ -332,8 +378,6 @@ public class BookFragment extends Fragment {
         author=dialog.findViewById(R.id.dialog_book_author);
         imageView=dialog.findViewById(R.id.dialog_cover_image);
 
-//        imageProgressBar=dialog.findViewById(R.id.image_progress_bar);
-
         name.setText(books.get(position).getName());
         publisher.setText(books.get(position).getPublisher());
         name.setText(books.get(position).getName());
@@ -342,19 +386,6 @@ public class BookFragment extends Fragment {
         author.setText(books.get(position).getAuthor());
         Glide.with(context)
                 .load(com.example.e_library.Config.getMyserverPicUrl() +books.get(position).getImg())
-                .addListener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        //imageProgressBar.setVisibility(ProgressBar.GONE);
-                        return false;
-                    }
-                })
                 .into(imageView);
 
         dialog.show();
@@ -390,6 +421,7 @@ public class BookFragment extends Fragment {
                         else{
                             spinner.setEnabled(true);
                         }
+                        tempBooks.addAll(books);
                         bookAdapter.notifyDataSetChanged();
                     } else {
                         FragmentUtils.showError(progressBar,recyclerView,textView, getString(R.string.ServerError));
@@ -415,4 +447,6 @@ public class BookFragment extends Fragment {
             databaseHelper.close();
         super.onStop();
     }
+
+
 }

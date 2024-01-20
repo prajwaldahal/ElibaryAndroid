@@ -4,11 +4,14 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -33,52 +36,56 @@ import retrofit2.Response;
 
 public class RentedFragment extends Fragment {
 
-    ProgressBar progressBar;
-    RecyclerView recyclerView;
-    Context context;
-    ArrayList<RentedBook> rentedBooks;
-    RentedBookAdapter rentedBookAdapter;
+    private ProgressBar progressBar;
 
-    DatabaseHelper databaseHelper;
+    private boolean focus;
+    private RecyclerView recyclerView;
+    private final Context context;
+    private ArrayList<RentedBook> rentedBooks;
+    private final ArrayList<RentedBook> tempBooks;
+    private RentedBookAdapter rentedBookAdapter;
 
-    FloatingActionButton floatingActionButton;
+    private DatabaseHelper databaseHelper;
 
-    TextView textView;
+    private FloatingActionButton floatingActionButton;
 
-    StoreData storeData;
+    private TextView textView;
 
-    Spinner spinner;
+    private StoreData storeData;
 
-    SortBy sortBy;
+    private SortBy sortBy;
 
-    APIServices apiServices;
-
+    private final APIServices apiServices;
 
 
     public RentedFragment(Context context) {
         this.context = context;
         apiServices=RetrofitBook.getRetrofitInstance();
+        rentedBooks=new ArrayList<>();
+        tempBooks=new ArrayList<>();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         storeData = new StoreData(context);
-
         View view=inflater.inflate(R.layout.fragment_rented, container, false);
         progressBar = view.findViewById(R.id.progress_bar);
         textView=view.findViewById(R.id.error_text);
+        EditText searchBar = view.findViewById(R.id.search);
+
         floatingActionButton=view.findViewById(R.id.refresh);
         floatingActionButton.setOnClickListener(v -> saveLocally());
         databaseHelper = new DatabaseHelper(context);
         recyclerView=view.findViewById(R.id.rented_book_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(linearLayoutManager);
-        rentedBooks=new ArrayList<>();
         getRentedData();
 
-        spinner=view.findViewById(R.id.spinner);
+        Spinner spinner = view.findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            boolean canSort;
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -88,32 +95,41 @@ public class RentedFragment extends Fragment {
                     switch (selectedValue) {
                         case "by Name": {
                             sortBy = SortBy.NAME;
+                            canSort=true;
                             break;
                         }
                         case "by Price": {
                             sortBy = SortBy.PRICE;
+                            canSort=true;
                             break;
                         }
                         case "by ISBN no": {
                             sortBy = SortBy.ISBNNO;
+                            canSort=true;
                             break;
                         }
 
                         case "by Expiry Date": {
                             sortBy=SortBy.EXPIRY;
+                            canSort=true;
                             Log.d("SORT_VALUE", "onItemSelected:expiry");
                             break;
                         }
 
                         case "by Rented Date":{
                             sortBy=SortBy.RENTED;
+                            canSort=true;
                             break;
                         }
+                        default:{
+                            canSort=false;
+                        }
                     }
-
-                    Sort <RentedBook> sort = new Sort<>(sortBy, rentedBooks);
-                    rentedBooks = (ArrayList<RentedBook>) sort.mergeSort();
-                    rentedBookAdapter.notifyDataSetChanged();
+                    if(canSort) {
+                        Sort<RentedBook> sort = new Sort<>(sortBy, rentedBooks);
+                        rentedBooks = (ArrayList<RentedBook>) sort.mergeSort();
+                        rentedBookAdapter.notifyDataSetChanged();
+                    }
                 }
             }
 
@@ -122,14 +138,53 @@ public class RentedFragment extends Fragment {
 
             }
         });
-
         rentedBookAdapter=new RentedBookAdapter(context,rentedBooks);
         rentedBookAdapter.setOnItemClickListener(this::showDialog);
 
         recyclerView.setAdapter(rentedBookAdapter);
 
+        searchBar.setOnFocusChangeListener((v, hasFocus) -> focus=hasFocus);
+
+        searchBar.setOnClickListener(v -> {
+            if(focus) {
+                searchBar.clearFocus();
+            }
+        });
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchBook(s.toString().trim());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
 
         return  view;
+    }
+
+    private void searchBook(String searchText) {
+        if(!searchText.isEmpty()){
+            rentedBooks.clear();
+            rentedBooks.addAll(tempBooks);
+            rentedBooks= (ArrayList<RentedBook>) Search.search(rentedBooks,searchText);
+        }
+        else{
+            if(tempBooks.size()!=rentedBooks.size()) {
+                rentedBooks.clear();
+                rentedBooks.addAll(tempBooks);
+            }
+        }
+        rentedBookAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -219,6 +274,9 @@ public class RentedFragment extends Fragment {
         Log.d("books", "getRentedData: "+rentedBooks.size());
         if(rentedBooks.size()==0){
             textView.setVisibility(TextView.VISIBLE);
+        }
+        else{
+            tempBooks.addAll(rentedBooks);
         }
         progressBar.setVisibility(ProgressBar.GONE);
     }

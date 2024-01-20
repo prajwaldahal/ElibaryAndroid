@@ -8,12 +8,24 @@ public class RentedBook extends Book {
 
     private String upto;
 
+    private int payment;
 
-    public RentedBook(String isbnno, String name, String author, String upto, String img, String file,String publisher,String renteddate) {
+
+    public RentedBook(String isbnno, String name, String author, String upto, String img, String file,String publisher,String renteddate,int payment) {
         super(img,isbnno,name,publisher,author);
         this.file = file;
         this.upto=upto;
         this.renteddate=renteddate;
+        this.payment=payment;
+    }
+
+
+    public int getPayment() {
+        return payment;
+    }
+
+    public void setPayment(int payment) {
+        this.payment = payment;
     }
 
     public String getFile() {
