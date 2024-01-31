@@ -118,7 +118,6 @@ public class HomeFragment extends Fragment {
 
         getRecent();
 
-
         recentAdapter= new RecentAdapter(context,recentBookList);
         recentAdapter.setOnItemClickListener(position -> {
             if(!databaseHelper.isBookAvailable(recentBookList.get(position).getIsbnno())){
